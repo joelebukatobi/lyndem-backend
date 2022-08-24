@@ -1,0 +1,16 @@
+{
+  "name": "lyndemedutainment",
+  "version": "1.0.0",
+  "description": "Website Backend for Lyndemedutainment.com",
+  "main": "index.js",
+  "scripts": {
+    "start": "NODE_ENV=production node server",
+    "dev": "nodemon server"
+  },
+  "author": "Joel Onnwuanaku",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1"
+  }
+}
