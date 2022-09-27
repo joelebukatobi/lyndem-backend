@@ -20,10 +20,19 @@ const GameSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-    cost: Number,
+    averageRating: {
+      type: Number,
+      min: [1, 'Rating must be at least 1'],
+      max: [10, 'Rating must can not be more than 10'],
+    },
     photo: {
       type: String,
       default: 'no-photo.jpg',
+    },
+    user: {
+      type: mongoose.Schema.ObjectId,
+      ref: 'User',
+      required: true,
     },
   },
   {
@@ -45,7 +54,7 @@ GameSchema.pre('save', function (next) {
   next();
 });
 
-// Cascade delete courses when a bootcamp is deleted
+// Cascade delete question when a Game is deleted
 GameSchema.pre('remove', async function (next) {
   await this.model('Question').deleteMany({ game: this._id });
   next();

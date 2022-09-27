@@ -10,7 +10,7 @@ const errorHandler = (err, req, res, next) => {
 
   // Error Check (Bad ObjectId)
   if (err.name === 'CastError') {
-    const message = `Resource not found with id of ${err.value}`;
+    const message = `Resource not found`;
     error = new ErrorResponse(message, 404);
   }
 
@@ -28,7 +28,7 @@ const errorHandler = (err, req, res, next) => {
 
   res.status(error.statusCode || 500).json({
     success: false,
-    error: error.message || `Internal Server Error | ${err.statusCode}`,
+    error: { message: error.message, statusCode: `${err.statusCode}` } || `Internal Server Error | ${err.statusCode}`,
   });
 };
 

@@ -44,10 +44,16 @@ exports.getQuestion = asyncHandler(async (req, res, next) => {
 // @access    Private
 exports.addQuestion = asyncHandler(async (req, res, next) => {
   req.body.game = req.params.gameId;
+  req.body.user = req.user.id;
   const game = await Game.findById(req.params.gameId);
 
   if (!game) {
     return next(new ErrorResponse(`No game with the id of ${req.params.gameId}`), 404);
+  }
+
+  // Check Ownership
+  if (game.user.toString() !== req.user.id || req.user.role !== 'admin') {
+    return next(new ErrorResponse(`User ${req.user.id} is not authorized to add a question to game ${game._id}`, 401));
   }
 
   const question = await Question.create(req.body);
@@ -66,6 +72,11 @@ exports.updateQuestion = asyncHandler(async (req, res, next) => {
 
   if (!question) {
     return next(new ErrorResponse(`No question with the id of ${req.params.id}`), 404);
+  }
+
+  // Check Ownership
+  if (question.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(new ErrorResponse(`User ${req.user.id} is not authorized to update question ${question._id}`, 401));
   }
 
   question = await Question.findByIdAndUpdate(req.params.id, req.body, {
@@ -87,6 +98,11 @@ exports.deleteQuestion = asyncHandler(async (req, res, next) => {
 
   if (!question) {
     return next(new ErrorResponse(`No question with the id of ${req.params.id}`), 404);
+  }
+
+  // Check Ownership
+  if (question.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(new ErrorResponse(`User ${req.user.id} is not authorized to delete question ${question._id}`, 401));
   }
 
   await question.remove();

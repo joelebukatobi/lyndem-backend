@@ -15,15 +15,18 @@ const QuestionSchema = new mongoose.Schema({
       d: String,
     },
   ],
-
   createdAt: {
     type: Date,
     default: Date.now,
   },
-
   game: {
     type: mongoose.Schema.ObjectId,
     ref: 'Game',
+    required: true,
+  },
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
     required: true,
   },
 });

@@ -14,9 +14,9 @@ exports.getGames = asyncHandler(async (req, res, next) => {
 // @route     GET/api/v1/games/:id
 // @access    Public
 exports.getGame = asyncHandler(async (req, res, next) => {
-  const game = await Game.findById(req.params.id);
+  const game = await Game.findById(req.params.id).populate('questions');
   if (!game) {
-    return next(new ErrorResponse(`Game not found with id of ${req.params.id}`, 404));
+    return next(new ErrorResponse(`Game not found with id of ${req.params.id}`, 400));
   }
   res.status(200).json({ success: true, data: game });
 });
@@ -25,6 +25,17 @@ exports.getGame = asyncHandler(async (req, res, next) => {
 // @route     POST /api/v1/games
 // @access    Private
 exports.createGame = asyncHandler(async (req, res, next) => {
+  // add user to req.body
+  req.body.user = req.user.id;
+
+  // Check for published games
+  const publishedGame = await Game.findOne({ user: req.user.id });
+
+  // Check User Role
+  if (publishedGame && req.user.role !== 'admin') {
+    return next(new ErrorResponse(`The user with ID ${req.user.id} has already published a Game`), 400);
+  }
+
   const game = await Game.create(req.body);
 
   res.status(201).json({
@@ -37,14 +48,24 @@ exports.createGame = asyncHandler(async (req, res, next) => {
 // @route     PUT /api/v1/games/:id
 // @access    Private
 exports.updateGame = asyncHandler(async (req, res, next) => {
-  const game = await Game.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  let game = await Game.findById(req.params.id);
 
   if (!game) {
     return next(new ErrorResponse(`Game not found with id of ${req.params.id}`, 404));
   }
+
+  console.log(game);
+  console.log(req.user);
+
+  // Check Ownership
+  if (game.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(new ErrorResponse(`User ${req.user.id} is not authorized to update this game`, 401));
+  }
+
+  game = await Game.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
   res.status(200).json({ success: true, data: game });
 });
@@ -57,6 +78,11 @@ exports.deleteGame = asyncHandler(async (req, res, next) => {
 
   if (!game) {
     return next(new ErrorResponse(`Game not found with id of ${req.params.id}`, 404));
+  }
+
+  // Check Ownership
+  if (game.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(new ErrorResponse(`User ${req.user.id} is not authorized to delete this game`, 401));
   }
 
   game.remove();
@@ -72,6 +98,11 @@ exports.gamePhotoUpload = asyncHandler(async (req, res, next) => {
 
   if (!game) {
     return next(new ErrorResponse(`Game not found with id of ${req.params.id}`, 404));
+  }
+
+  // Check Ownership
+  if (game.user.toString() !== req.user.id && req.user.role !== 'admin') {
+    return next(new ErrorResponse(`User ${req.user.id} is not authorized to update this game`, 401));
   }
 
   if (!req.files) {

@@ -6,6 +6,8 @@ const filterResults = require('../middleware/filter');
 
 const router = express.Router({ mergeParams: true });
 
+const { protect, authorize } = require('../middleware/auth');
+
 // '/' Endpoints
 router
   .route('/')
@@ -16,8 +18,12 @@ router
     }),
     getQuestions
   )
-  .post(addQuestion);
+  .post(protect, authorize('editor', 'admin'), addQuestion);
 
 //  '/:id' Endpoints
-router.route('/:id').get(getQuestion).put(updateQuestion).delete(deleteQuestion);
+router
+  .route('/:id')
+  .get(getQuestion)
+  .put(protect, authorize('editor', 'admin'), updateQuestion)
+  .delete(protect, authorize('editor', 'admin'), deleteQuestion);
 module.exports = router;
