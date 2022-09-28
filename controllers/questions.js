@@ -7,7 +7,7 @@ const Game = require('../models/Game');
 // @route     GET /api/v1/questions
 // @route     GET /api/v1/game/:gameId/questions
 // @access    Public
-exports.getQuestions = asyncHandler(async (req, res, next) => {
+exports.getQuestions = asyncHandler(async (req, res, query, next) => {
   if (req.params.gameId) {
     const questions = await Question.find({
       game: req.params.gameId,
