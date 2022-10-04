@@ -73,11 +73,11 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Mount Routers
-app.use('/api/v1/games', games);
-app.use('/api/v1/questions', questions);
-app.use('/api/v1/auth', auth);
-app.use('/api/v1/users', users);
-app.use('/api/v1/reviews', reviews);
+app.use('/backend/api/v1/games', games);
+app.use('/backend/api/v1/questions', questions);
+app.use('/backend/api/v1/auth', auth);
+app.use('/backend/api/v1/users', users);
+app.use('/backend/api/v1/reviews', reviews);
 
 // Error Handler/
 app.use(errorHandler);
