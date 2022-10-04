@@ -1,5 +1,12 @@
 const express = require('express');
-const { getQuestions, getQuestion, addQuestion, updateQuestion, deleteQuestion } = require('../controllers/questions');
+const {
+  getQuestions,
+  getQuestion,
+  addQuestion,
+  updateQuestion,
+  deleteQuestion,
+  searchQuestions,
+} = require('../controllers/questions');
 
 const Question = require('../models/Question');
 const filterResults = require('../middleware/filter');
@@ -26,4 +33,12 @@ router
   .get(getQuestion)
   .put(protect, authorize('editor', 'admin'), updateQuestion)
   .delete(protect, authorize('editor', 'admin'), deleteQuestion);
+
+router.route('/search/:key').get(
+  filterResults(Question, {
+    path: 'question',
+    select: 'name description',
+  }),
+  searchQuestions
+);
 module.exports = router;

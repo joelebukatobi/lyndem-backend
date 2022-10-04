@@ -4,4 +4,6 @@
 node_modules
 
 # Environment Variables
+./config/config.env
+/config/config.env
 config/config.env

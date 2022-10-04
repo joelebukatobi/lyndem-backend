@@ -39,6 +39,22 @@ exports.getQuestion = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc      search Questions
+// @route     GET /api/v1/questions/search/:term
+// @access    Public
+exports.searchQuestions = asyncHandler(async (req, res, query, next) => {
+  const question = await Question.find({
+    // game: req.params.gameId,
+    $or: [{ question: { $regex: req.params.key, $options: 'i' } }],
+  }).populate({ path: 'game', select: 'name description' });
+
+  return res.status(200).json({
+    success: true,
+    count: question.length,
+    data: question,
+  });
+});
+
 // @desc      Add a question
 // @route     POST /api/v1/game/:gameId/questions/
 // @access    Private
